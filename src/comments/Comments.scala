@@ -42,9 +42,8 @@ object Comments {
     return if(comments != null) comments.mkString("|") else ""
   }
 
-  def main(a: Array[String]): Unit = {
-    val args = Array[String]("28975607", "","3")
-    println(findComments(args(0), new Client(null, Integer.parseInt(args(2)))))
+  def main(args: Array[String]): Unit = {
+    println(findComments(args(0), new Client(args(1), Integer.parseInt(args(2)))))
   }
 
 }
