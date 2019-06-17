@@ -22,7 +22,7 @@ object Comments {
     var result = Set[String]()
     val comments = CommentRegex.matcher(xml)
     while(comments.find()) {
-      if(comments.group(1).contains("RefType=\"CommentOn\"")) {
+      if(comments.group(1).contains("CommentOn")) {
         val pmid = PMIDRegex.matcher(comments.group(2))
         if (pmid.find())
           result += pmid.group(1)
@@ -32,9 +32,12 @@ object Comments {
   }
 
   def processComments(tree: CommentTree, client: Client): CommentTree = {
-    val xml = client.fetch(tree.getPMID.replace("\n", " "))
-    tree.title = extractArticleTitle(xml)
-    extractCommentPMID(xml).foreach(pmid => processComments(tree.addLeaf(pmid), client))
+    val xml = client.fetch(tree.getPMID)
+    if(xml.isDefined) {
+      val formatted = xml.get.replace("\n", " ")
+      tree.title = extractArticleTitle(formatted)
+      extractCommentPMID(formatted).foreach(pmid => processComments(tree.addLeaf(pmid), client))
+    }
     tree
   }
 
@@ -45,7 +48,7 @@ object Comments {
 
   def main(args: Array[String]): Unit = {
     if(args.length == 3)
-      println(findComments(args(0), new Client(args(1), Integer.parseInt(args(2)))))
+      println(findComments("28975607", new Client(null, 3)))
     else
       println(s"""Missing ${3 - args.length} parameters.
                  |Required parameters are: (PMID, EUtils API Key, Requests per second)
