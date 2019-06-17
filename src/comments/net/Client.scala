@@ -21,9 +21,9 @@ class Client(key: String, requestLimit: Int) {
   }
 
   @throws[IOException]
-  private def call(address: String, tries: Int): String = {
+  private def call(address: String, tries: Int): Option[String] = {
     if(tries >= Client.MAX_RETRIES)
-      return null
+      return None
     throttle()
     val connection = new URL(if (key != null) s"$address&api_key=$key"
       else address).openConnection().asInstanceOf[HttpURLConnection]
@@ -32,17 +32,17 @@ class Client(key: String, requestLimit: Int) {
       connection.connect()
       val xml = Source.fromInputStream(connection.getInputStream).mkString
       connection.disconnect()
-      return xml
+      return Some(xml)
     } catch {
       case _: IOException => connection.getResponseCode match {
           case 429 => Thread.sleep(Client.HTTP_429_WAIT)
-          case 404 => return new String()
+          case 404 => return None
         }
     }
     call(address, tries + 1)
   }
 
-  def fetch(pmid: String): String = call(s"${Client.BASE_URL}"
+  def fetch(pmid: String): Option[String] = call(s"${Client.BASE_URL}"
     + s"efetch.fcgi?db=pubmed&rettype=xml&id=$pmid", 0)
 
 }

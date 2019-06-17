@@ -24,14 +24,15 @@ class CommentTree(pmid: String) {
       tree.leaves.foreach(leaf => collect(leaf, titles, depth + 1))
       titles
     }
-    collect(this, mutable.Map[Int, Set[String]](), 0).filter(_._2.nonEmpty)
+    collect(this, mutable.Map[Int, Set[String]](), 0).filter(p => p._2.nonEmpty || p._1 != 0)
   }
 
   def last_title(): Set[String] = {
     val titles = collectTitles()
     if(titles.nonEmpty)
-      return titles(titles.keys.max)
-    null
+      titles(titles.keys.max)
+    else
+      Set[String]()
   }
 
 }
