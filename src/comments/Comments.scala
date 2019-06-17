@@ -6,14 +6,16 @@ import comments.net.Client
 
 object Comments {
   val CommentRegex: Pattern = Pattern.compile("<CommentsCorrections([^List].*?)>(.*?)</CommentsCorrections>")
-  val RefTypeRegex: Pattern = Pattern.compile("")
   val PMIDRegex: Pattern = Pattern.compile("<PMID.*?>(.*)</PMID>")
   val TitleRegex: Pattern = Pattern.compile("<ArticleTitle>(.*)</ArticleTitle>")
 
 
-  def extractArticleTitle(xml: String): String = {
+  def extractArticleTitle(xml: String): Option[String] = {
     val title = TitleRegex.matcher(xml)
-    return if(title.find()) title.group(1) else null
+    if(title.find())
+      Some(title.group(1))
+    else
+      None
   }
 
   def extractCommentPMID(xml: String): Set[String] = {
@@ -26,25 +28,28 @@ object Comments {
           result += pmid.group(1)
       }
     }
-    return result
+    result
   }
 
   def processComments(tree: CommentTree, client: Client): CommentTree = {
-    val xml = client.fetch(tree.getPMID).replace("\n", " ")
+    val xml = client.fetch(tree.getPMID.replace("\n", " "))
     tree.title = extractArticleTitle(xml)
     extractCommentPMID(xml).foreach(pmid => processComments(tree.addLeaf(pmid), client))
-    return tree
+    tree
   }
 
 
   def findComments(pmid: String, client: Client): String = {
-    val comments = processComments(new CommentTree(pmid), client).last_title()
-    return if(comments != null) comments.mkString("|") else ""
+    processComments(new CommentTree(pmid), client).last_title().mkString("|")
   }
 
-  def main(a: Array[String]): Unit = {
-    val args = Array[String]("28975607", "","3")
-    println(findComments(args(0), new Client(null, Integer.parseInt(args(2)))))
+  def main(args: Array[String]): Unit = {
+    if(args.length == 3)
+      println(findComments(args(0), new Client(args(1), Integer.parseInt(args(2)))))
+    else
+      println(s"""Missing ${3 - args.length} parameters.
+                 |Required parameters are: (PMID, EUtils API Key, Requests per second)
+                 |Example: java -jar comments.jar 28975607 ABC1234 10""".stripMargin)
   }
 
 }
