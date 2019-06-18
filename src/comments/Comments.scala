@@ -48,7 +48,7 @@ object Comments {
 
   def main(args: Array[String]): Unit = {
     if(args.length == 3)
-      println(findComments("28975607", new Client(null, 3)))
+      println(findComments(args(0), new Client(args(1), Integer.parseInt(args(2)))))
     else
       println(s"""Missing ${3 - args.length} parameters.
                  |Required parameters are: (PMID, EUtils API Key, Requests per second)
