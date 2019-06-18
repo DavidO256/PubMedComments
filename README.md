@@ -26,4 +26,4 @@ Depth: PMID
 In this example, the PMID `27405686`, at depth `2`, is the furthest  title.
 When the tree is converted to a map, the keys are integers and the values are sets of titles.
 If the PMID at depth `1` split off into two comments, in the map, the set at depth `2` would be the two PMIDs that `1` split into. 
-Finally, the set at depth `0`, which is query, is removed because it cannot be a result.
+Finally, the set at depth `0`, which is the query, is removed because it cannot be a result.
