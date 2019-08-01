@@ -1,5 +1,6 @@
 package comments
 
+import java.util.Locale
 import java.util.regex.Pattern
 
 import comments.net.Client
@@ -46,15 +47,19 @@ object Comments {
     processComments(new CommentTree(pmid), client).last_title().mkString("|")
   }
 
-  def main(args: Array[String]): Unit = {
+  def run(args: Array[String], verbose: Boolean): Unit = {
     if(args.length >= 1)
-      println(findComments(args(args.length - 1), new Client(if(args.length > 1) args(0) else null)))
+      println(findComments(args(args.length - 1), new Client(if(args.length > 1) args(0) else null, verbose)))
     else
       println(s"""Missing parameters!
                  |With a key parameters are: EUtils API Key, PMID
                  |Example: java -jar comments.jar KEY1234 28975607
                  |Without a key parameters are: PMID
                  |Example: java -jar comments.jar 28975607""".stripMargin)
+  }
+
+  def main(args: Array[String]): Unit = {
+    run(args.filter(_ != "--verbose"), args.contains("--verbose"))
   }
 
 }

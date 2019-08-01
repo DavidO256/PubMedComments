@@ -1,11 +1,10 @@
 package comments.net
 
-import java.io.IOException
 import java.net.{HttpURLConnection, URL}
 
 import scala.io.Source
 
-class Client(key: String) {
+class Client(key: String, verbose: Boolean) {
   private val maxRequests: Int = if(key == null) 3 else 10
   private var requests = 0
   private var reset = 0L
@@ -20,7 +19,6 @@ class Client(key: String) {
     requests += 1
   }
 
-  @throws[IOException]
   private def call(address: String, tries: Int): Option[String] = {
     if(tries >= Client.MAX_RETRIES)
       return None
@@ -34,7 +32,10 @@ class Client(key: String) {
       connection.disconnect()
       return Some(xml)
     } catch {
-      case _: IOException => Thread.sleep(Client.HTTP_ERROR_WAIT)
+      case _: Throwable =>
+        Thread.sleep(Client.HTTP_ERROR_WAIT)
+        if(verbose)
+          println(s"Error ${connection.getResponseCode}: ${connection.getResponseMessage}")
     }
     call(address, tries + 1)
   }
