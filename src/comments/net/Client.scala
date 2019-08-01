@@ -23,19 +23,17 @@ class Client(key: String, verbose: Boolean) {
     if(tries >= Client.MAX_RETRIES)
       return None
     throttle()
-    val connection = new URL(if (key != null) s"$address&api_key=$key"
-      else address).openConnection.asInstanceOf[HttpURLConnection]
+    val url = new URL(if (key != null) s"$address&api_key=$key" else address)
     try {
-      connection.setRequestMethod("GET")
-      connection.connect()
-      val xml = Source.fromInputStream(connection.getInputStream).mkString
-      connection.disconnect()
+      val connection = Source.fromURL(url)
+      val xml = connection.mkString
+      connection.close()
       return Some(xml)
     } catch {
-      case _: Throwable =>
+      case e: Throwable =>
         Thread.sleep(Client.HTTP_ERROR_WAIT)
         if(verbose)
-          println(s"Error ${connection.getResponseCode}: ${connection.getResponseMessage}")
+          e.printStackTrace()
     }
     call(address, tries + 1)
   }
