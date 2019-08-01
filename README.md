@@ -5,7 +5,11 @@ Download `PubMedComments.jar` from the repository's root directory.
 
 The jar should be run as follows:
 ```
-java -jar PubMedComments.jar PMID API_KEY REQUESTS_PER_SECOND
+java -jar PubMedComments.jar API_KEY PMID 
+```
+If you don't have an api key, run it as follows:
+```
+java -jar PubMedComments.jar PMID
 ```
 Note that the order of these parameters does matter.
 
