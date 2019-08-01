@@ -5,8 +5,8 @@ import java.net.{HttpURLConnection, URL}
 
 import scala.io.Source
 
-class Client(key: String, requestLimit: Int) {
-  private val maxRequests: Int = if(key == null) 3 else requestLimit
+class Client(key: String) {
+  private val maxRequests: Int = if(key == null) 3 else 10
   private var requests = 0
   private var reset = 0L
 
@@ -26,7 +26,7 @@ class Client(key: String, requestLimit: Int) {
       return None
     throttle()
     val connection = new URL(if (key != null) s"$address&api_key=$key"
-      else address).openConnection().asInstanceOf[HttpURLConnection]
+      else address).openConnection.asInstanceOf[HttpURLConnection]
     try {
       connection.setRequestMethod("GET")
       connection.connect()
@@ -34,10 +34,7 @@ class Client(key: String, requestLimit: Int) {
       connection.disconnect()
       return Some(xml)
     } catch {
-      case _: IOException => connection.getResponseCode match {
-          case 429 => Thread.sleep(Client.HTTP_429_WAIT)
-          case 404 => return None
-        }
+      case _: IOException => Thread.sleep(Client.HTTP_ERROR_WAIT)
     }
     call(address, tries + 1)
   }
@@ -49,7 +46,7 @@ class Client(key: String, requestLimit: Int) {
 
 object Client {
   val MAX_RETRIES = 5
-  val HTTP_429_WAIT = 250
+  val HTTP_ERROR_WAIT = 375
   val THROTTLE_WAIT = 500
   val BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 }
