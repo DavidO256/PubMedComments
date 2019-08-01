@@ -47,12 +47,14 @@ object Comments {
   }
 
   def main(args: Array[String]): Unit = {
-    if(args.length == 3)
-      println(findComments("28975607", new Client(null, 3)))
+    if(args.length >= 1)
+      println(findComments(args(args.length - 1), new Client(if(args.length > 1) args(0) else null)))
     else
-      println(s"""Missing ${3 - args.length} parameters.
-                 |Required parameters are: (PMID, EUtils API Key, Requests per second)
-                 |Example: java -jar comments.jar 28975607 ABC1234 10""".stripMargin)
+      println(s"""Missing parameters!
+                 |With a key parameters are: EUtils API Key, PMID
+                 |Example: java -jar comments.jar KEY1234 28975607
+                 |Without a key parameters are: PMID
+                 |Example: java -jar comments.jar 28975607""".stripMargin)
   }
 
 }
