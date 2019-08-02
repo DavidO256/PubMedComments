@@ -1,8 +1,9 @@
 package comments.net
 
-import java.net.{HttpURLConnection, URL}
+import java.net.URL
+import java.nio.charset.CodingErrorAction
 
-import scala.io.Source
+import scala.io.{Codec, Source}
 
 class Client(key: String, verbose: Boolean) {
   private val maxRequests: Int = if(key == null) 3 else 10
@@ -25,7 +26,10 @@ class Client(key: String, verbose: Boolean) {
     throttle()
     val url = new URL(if (key != null) s"$address&api_key=$key" else address)
     try {
-      val connection = Source.fromURL(url)
+      implicit val codec: Codec = Codec("UTF-8")
+      codec.onMalformedInput(CodingErrorAction.REPLACE)
+      codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
+      val connection = Source.fromURL(url)(codec)
       val xml = connection.mkString
       connection.close()
       return Some(xml)

@@ -1,6 +1,5 @@
 package comments
 
-import java.util.Locale
 import java.util.regex.Pattern
 
 import comments.net.Client
@@ -58,8 +57,6 @@ object Comments {
                  |Example: java -jar comments.jar 28975607""".stripMargin)
   }
 
-  def main(args: Array[String]): Unit = {
-    run(args.filter(_ != "--verbose"), args.contains("--verbose"))
-  }
+  def main(args: Array[String]): Unit = run(args.filter(_ != "--verbose"), args.contains("--verbose"))
 
 }
